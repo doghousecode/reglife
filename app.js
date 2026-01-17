@@ -1,17 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const KEY = "reglife_state_v7";
+  const KEY = "reglife_state_v8";
 
   const defaultState = {
     age: 14,
     cash: 50,
-    health: 60,  // 0–100
-    brains: 5,   // 1–10
+    health: 60,
+    brains: 5,
     inventory: [],
     unlocks: { ps5: false, jobBonusPaid: false },
     lastAgeUpdateMs: Date.now(),
+    emojiUsedSayings: [], // store used sayings across sessions (simple array)
   };
 
-  // ---------- helpers ----------
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const $ = (id) => document.getElementById(id);
 
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     toast._t = setTimeout(() => (el.hidden = true), 1800);
   }
 
-  // ---------- age tick (+1 per hour) ----------
+  // ---------- age tick ----------
   function applyAgeTick() {
     const now = Date.now();
     const last = state.lastAgeUpdateMs || now;
@@ -66,25 +66,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------- secret avatar head tap (+1 year) ----------
-  // Adds an invisible hitbox over the top portion of the avatar on the homepage.
   function wireSecretAvatarTap() {
     const avatar = document.querySelector("img.hero-avatar");
     if (!avatar) return;
 
-    // Only on homepage (where shop exists)
-    const onHome = !!$("shopSection");
-    if (!onHome) return;
+    // only on homepage (where shop exists)
+    if (!$("shopSection")) return;
 
-    // Wrap avatar if not already wrapped
-    if (!avatar.parentElement) return;
     avatar.parentElement.style.position = "relative";
 
+    // avoid adding twice
+    if (avatar.parentElement.querySelector("#secretAgeTap")) return;
+
     const hit = document.createElement("button");
+    hit.id = "secretAgeTap";
     hit.type = "button";
     hit.setAttribute("aria-label", "Secret age cheat");
+
     hit.style.position = "absolute";
-    hit.style.width = "72px";
-    hit.style.height = "72px";
+    hit.style.width = "78px";
+    hit.style.height = "78px";
     hit.style.left = "50%";
     hit.style.top = "0px";
     hit.style.transform = "translateX(-50%)";
@@ -92,8 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
     hit.style.border = "0";
     hit.style.background = "transparent";
     hit.style.cursor = "pointer";
-
-    // Place it over the "head" area: slightly above avatar center
     hit.style.pointerEvents = "auto";
 
     hit.addEventListener("click", (e) => {
@@ -103,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
       saveState();
       renderHeader();
       renderWorkGate();
-      toast("🤫 Secret unlocked: Age +1");
+      toast("🤫 Secret: Age +1");
     });
 
     avatar.parentElement.appendChild(hit);
@@ -119,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderShop() {
     const grid = $("shopGrid");
     const invList = $("inventoryList");
-    if (!grid || !invList) return; // only on homepage
+    if (!grid || !invList) return;
 
     grid.innerHTML = "";
 
@@ -265,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       case "healthy":
         state.health = clamp(state.health + 10, 0, 100);
-        state.brains = clamp(state.brains + 1, 1, 10); // ✅ requested change
+        state.brains = clamp(state.brains + 1, 1, 10); // requested
         toast("🥗 Healthy meal! Health +10%, Brains +1");
         break;
 
@@ -292,6 +291,10 @@ document.addEventListener("DOMContentLoaded", () => {
         startPuzzle();
         return;
 
+      case "emojiGame":
+        startEmojiGame();
+        return;
+
       default:
         toast("✅ Task complete!");
     }
@@ -311,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- French quiz (REAL UI, 5Q, pass >=4 unlocks PS5) ----------
+  // ---------- French quiz (UI) ----------
   const FRENCH_BANK = [
     { fr: "bonjour", en: "hello" },
     { fr: "merci", en: "thank you" },
@@ -350,6 +353,11 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("French quiz UI not found on this page.");
       return;
     }
+
+    // hide other sections if present
+    $("mathSection") && ($("mathSection").hidden = true);
+    $("puzzleSection") && ($("puzzleSection").hidden = true);
+    $("emojiSection") && ($("emojiSection").hidden = true);
 
     section.hidden = false;
 
@@ -428,7 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
     section.scrollIntoView({ behavior: "smooth" });
   }
 
-  // ---------- maths test (30s, 5Q, needs 5/5 before time runs out) ----------
+  // ---------- maths test ----------
   let mathTimerId = null;
 
   function startMathsTest() {
@@ -444,6 +452,10 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Maths UI not found on this page.");
       return;
     }
+
+    $("quizSection") && ($("quizSection").hidden = true);
+    $("puzzleSection") && ($("puzzleSection").hidden = true);
+    $("emojiSection") && ($("emojiSection").hidden = true);
 
     section.hidden = false;
 
@@ -544,7 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
     section.scrollIntoView({ behavior: "smooth" });
   }
 
-  // ---------- puzzle (optional; only runs if UI exists) ----------
+  // ---------- puzzle ----------
   let puzzleTimerId = null;
 
   function startPuzzle() {
@@ -556,6 +568,10 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Puzzle UI not found on this page.");
       return;
     }
+
+    $("quizSection") && ($("quizSection").hidden = true);
+    $("mathSection") && ($("mathSection").hidden = true);
+    $("emojiSection") && ($("emojiSection").hidden = true);
 
     section.hidden = false;
 
@@ -621,6 +637,228 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   }
 
+  // ---------- Emoji Charades (vanilla JS version) ----------
+  const EMOJI_BANK = [
+    { saying: "Break the ice", emojis: "🔨🧊", hint: "Starting a conversation" },
+    { saying: "Spill the beans", emojis: "🫘💦", hint: "Revealing a secret" },
+    { saying: "Time flies", emojis: "⏰🪰", hint: "Time goes fast" },
+    { saying: "Under the weather", emojis: "🤒☁️", hint: "Feeling ill" },
+    { saying: "Hit the nail on the head", emojis: "🔨📌🧠", hint: "Exactly right" },
+    { saying: "Piece of cake", emojis: "🍰✅", hint: "Very easy" },
+    { saying: "Costs an arm and a leg", emojis: "💸🦾🦵", hint: "Very expensive" },
+    { saying: "The ball is in your court", emojis: "🎾🏟️👉", hint: "Your decision now" },
+    { saying: "When pigs fly", emojis: "🐷🪽", hint: "Never going to happen" },
+    { saying: "Bite the bullet", emojis: "😬🔫", hint: "Do something hard" },
+    { saying: "A blessing in disguise", emojis: "🎁🥸", hint: "Good thing hidden" },
+    { saying: "Let the cat out of the bag", emojis: "🐱🛍️😱", hint: "Accidentally reveal" },
+    { saying: "Don’t judge a book by its cover", emojis: "📘👀🚫", hint: "Looks deceive" },
+    { saying: "Actions speak louder than words", emojis: "🏃‍♂️📣<️⃣", hint: "Do > say" },
+    { saying: "Once in a blue moon", emojis: "🌕🔵", hint: "Very rarely" },
+  ];
+
+  const normalize = (text) =>
+    text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .replace(/\b(a|an|the|is|are|was|were)\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  let emojiGame = {
+    started: false,
+    current: null,
+    showAnswer: false,
+    score: 0,
+    total: 0,
+    streak: 0,
+    bestStreak: 0,
+    combo: 1,
+    hintShown: false,
+  };
+
+  function startEmojiGame() {
+    const section = $("emojiSection");
+    if (!section) {
+      toast("Emoji UI not found on this page.");
+      return;
+    }
+
+    // hide others
+    $("quizSection") && ($("quizSection").hidden = true);
+    $("mathSection") && ($("mathSection").hidden = true);
+    $("puzzleSection") && ($("puzzleSection").hidden = true);
+
+    section.hidden = false;
+    $("emojiStart").hidden = false;
+    $("emojiGame").hidden = true;
+
+    // wire buttons once
+    wireEmojiUI();
+    section.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function wireEmojiUI() {
+    const playBtn = $("emojiPlayBtn");
+    const submitBtn = $("emojiSubmitBtn");
+    const nextBtn = $("emojiNextBtn");
+    const resetBtn = $("emojiResetBtn");
+    const hintBtn = $("emojiHintBtn");
+    const input = $("emojiInput");
+
+    if (!playBtn || !submitBtn || !nextBtn || !resetBtn || !hintBtn || !input) return;
+
+    if (!playBtn._wired) {
+      playBtn._wired = true;
+
+      playBtn.addEventListener("click", () => {
+        emojiGame.started = true;
+        emojiGame.score = 0;
+        emojiGame.total = 0;
+        emojiGame.streak = 0;
+        emojiGame.bestStreak = 0;
+        emojiGame.combo = 1;
+        emojiGame.showAnswer = false;
+        emojiGame.hintShown = false;
+
+        $("emojiStart").hidden = true;
+        $("emojiGame").hidden = false;
+
+        nextEmojiQuestion(true);
+      });
+
+      submitBtn.addEventListener("click", () => {
+        checkEmojiAnswer();
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") checkEmojiAnswer();
+      });
+
+      nextBtn.addEventListener("click", () => {
+        nextEmojiQuestion(false);
+      });
+
+      resetBtn.addEventListener("click", () => {
+        emojiGame.started = false;
+        emojiGame.current = null;
+        $("emojiStart").hidden = false;
+        $("emojiGame").hidden = true;
+        $("emojiFeedback").textContent = "";
+        $("emojiHint").style.display = "none";
+        $("emojiInput").value = "";
+      });
+
+      hintBtn.addEventListener("click", () => {
+        if (!emojiGame.current) return;
+        emojiGame.hintShown = true;
+        const hint = $("emojiHint");
+        hint.textContent = `💡 ${emojiGame.current.hint}`;
+        hint.style.display = "block";
+      });
+    }
+  }
+
+  function pickEmojiQuestion() {
+    const used = new Set(state.emojiUsedSayings || []);
+    const pool = EMOJI_BANK.filter((q) => !used.has(q.saying));
+    const list = pool.length ? pool : EMOJI_BANK;
+    const q = list[Math.floor(Math.random() * list.length)];
+
+    // mark used (but keep it bounded)
+    const nextUsed = [...(state.emojiUsedSayings || []), q.saying].slice(-40);
+    state.emojiUsedSayings = nextUsed;
+    saveState();
+
+    return q;
+  }
+
+  function renderEmojiHeader() {
+    $("emojiScore").textContent = String(emojiGame.score);
+    $("emojiTotal").textContent = String(emojiGame.total);
+
+    const accWrap = $("emojiAccuracyWrap");
+    const acc = $("emojiAccuracy");
+    if (emojiGame.total > 0) {
+      accWrap.hidden = false;
+      acc.textContent = `${Math.round((emojiGame.score / emojiGame.total) * 100)}%`;
+    } else {
+      accWrap.hidden = true;
+    }
+
+    const comboWrap = $("emojiComboWrap");
+    const combo = $("emojiCombo");
+    if (emojiGame.combo > 1) {
+      comboWrap.hidden = false;
+      combo.textContent = `×${emojiGame.combo}`;
+    } else {
+      comboWrap.hidden = true;
+    }
+  }
+
+  function nextEmojiQuestion(first) {
+    emojiGame.current = pickEmojiQuestion();
+    emojiGame.showAnswer = false;
+    emojiGame.hintShown = false;
+
+    $("emojiClue").textContent = emojiGame.current.emojis;
+    $("emojiHint").style.display = "none";
+    $("emojiFeedback").textContent = first ? "Type your answer and hit Submit." : "";
+    $("emojiInput").value = "";
+    $("emojiInput").focus();
+
+    $("emojiNextBtn").hidden = true;
+    renderEmojiHeader();
+  }
+
+  function checkEmojiAnswer() {
+    if (!emojiGame.current) return;
+
+    const guess = ($("emojiInput").value || "").trim();
+    if (!guess) return;
+
+    const user = normalize(guess);
+    const correct = normalize(emojiGame.current.saying);
+
+    const close =
+      user === correct ||
+      correct.includes(user) ||
+      user.includes(correct) ||
+      user.split(" ").filter((w) => correct.includes(w) && w.length > 2).length >=
+        Math.ceil(correct.split(" ").length * 0.6);
+
+    emojiGame.total += 1;
+
+    if (close) {
+      emojiGame.streak += 1;
+      emojiGame.bestStreak = Math.max(emojiGame.bestStreak, emojiGame.streak);
+
+      if (emojiGame.streak >= 5) emojiGame.combo = 3;
+      else if (emojiGame.streak >= 3) emojiGame.combo = 2;
+      else emojiGame.combo = 1;
+
+      emojiGame.score += emojiGame.combo;
+
+      // Reward: small cash + brains pop (keeps it “Reglife”)
+      state.cash += 10 * emojiGame.combo;
+      state.brains = clamp(state.brains + 1, 1, 10);
+
+      saveState();
+      renderHeader();
+      renderShop();
+      renderWorkGate();
+
+      $("emojiFeedback").textContent = `✅ Correct! "${emojiGame.current.saying}"  +£${10 * emojiGame.combo}, Brains +1`;
+      toast("✅ Emoji win! +Brains");
+    } else {
+      emojiGame.streak = 0;
+      emojiGame.combo = 1;
+      $("emojiFeedback").textContent = `❌ Nope. It was: "${emojiGame.current.saying}"`;
+    }
+
+    $("emojiNextBtn").hidden = false;
+    renderEmojiHeader();
+  }
+
   // ---------- reset ----------
   function wireReset() {
     $("resetBtn")?.addEventListener("click", () => {
@@ -639,7 +877,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderWorkGate();
   wireTaskButtons();
   wireReset();
-  wireSecretAvatarTap(); // ✅ requested cheat button
+  wireSecretAvatarTap();
   saveState();
 
   setInterval(() => {
