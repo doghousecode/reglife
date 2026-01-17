@@ -1,18 +1,33 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>Eat</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat • Reglife</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main class="app">
-  <h1>🍔 Eat</h1>
+  <main class="app">
 
-  <button onclick="doTask('maccas')">Eat McDonalds</button>
-  <button onclick="doTask('healthy')">Eat healthy meal</button>
+    <section class="stats-grid">
+      <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
+      <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
+      <div class="stat-box"><span>Health</span><strong id="health">60%</strong></div>
+      <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
+    </section>
 
-  <a href="index.html" class="back">← Back</a>
-</main>
-<script src="app.js"></script>
+    <h1 class="page-title">🍔 Eat</h1>
+
+    <section class="tasks">
+      <button class="task" type="button" data-task="maccas">Eat McDonalds</button>
+      <button class="task" type="button" data-task="healthy">Eat healthy meal</button>
+    </section>
+
+    <a href="index.html" class="back">← Back</a>
+
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
 </body>
 </html>
