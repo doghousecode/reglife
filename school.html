@@ -20,6 +20,7 @@
 
     <section class="tasks">
       <button class="task" type="button" data-task="frenchQuiz">Learn French (Vocab Test)</button>
+      <button class="task" type="button" data-task="mathsTest">Maths Test (Multiplication)</button>
       <button class="task" type="button" data-task="puzzle">2-Minute Puzzle</button>
     </section>
 
@@ -40,6 +41,23 @@
       </div>
     </section>
 
+    <!-- Maths UI -->
+    <section class="quiz" id="mathSection" hidden>
+      <h2>Maths Test</h2>
+
+      <div class="quiz-card">
+        <div class="quiz-top">
+          <div id="mathProgress">Q1 / 5</div>
+          <div id="mathScore">Score: 0</div>
+        </div>
+
+        <div class="quiz-question" id="mathQuestion">Question</div>
+        <div class="quiz-options" id="mathOptions"></div>
+
+        <p class="quiz-status" id="mathStatus"></p>
+      </div>
+    </section>
+
     <!-- Puzzle UI -->
     <section class="puzzle" id="puzzleSection" hidden>
       <h2>2-Minute Puzzle</h2>
@@ -50,7 +68,7 @@
       <div class="puzzle-grid" id="puzzleGrid"></div>
     </section>
 
-    <a href="index.html" class="back">← Back</a>
+    <a href="./index.html" class="back">← Back</a>
 
   </main>
 
