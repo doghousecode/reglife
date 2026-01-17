@@ -1,17 +1,32 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>Work</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Work • Reglife</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main class="app">
-  <h1>💼 Work</h1>
+  <main class="app">
 
-  <p id="workMsg"></p>
+    <section class="stats-grid">
+      <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
+      <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
+      <div class="stat-box"><span>Health</span><strong id="health">60%</strong></div>
+      <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
+    </section>
 
-  <a href="index.html" class="back">← Back</a>
-</main>
-<script src="app.js"></script>
+    <h1 class="page-title">💼 Work</h1>
+
+    <section class="work-box">
+      <p id="workMsg"></p>
+    </section>
+
+    <a href="index.html" class="back">← Back</a>
+
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
 </body>
 </html>
