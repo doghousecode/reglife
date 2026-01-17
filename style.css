@@ -1,71 +1,350 @@
+:root {
+  --bg: #0b0f19;
+  --card: #121a2b;
+  --text: #e9eefc;
+  --muted: #a9b4d0;
+  --accent: #4f7cff;
+  --accent2: #34d399;
+  --danger: #ef4444;
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #0b0f19;
-  color: #e9eefc;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 50% -10%, #1a2750 0%, var(--bg) 60%);
+  color: var(--text);
 }
 
 .app {
-  max-width: 500px;
-  margin: auto;
+  max-width: 520px;
+  margin: 0 auto;
   padding: 16px;
   display: grid;
   gap: 16px;
 }
 
+/* ==== Stats (4 across) ==== */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 
 .stat-box {
-  background: #121a2b;
+  background: rgba(18, 26, 43, 0.9);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px;
-  padding: 8px;
+  padding: 10px 8px;
   text-align: center;
 }
 
 .stat-box span {
+  display: block;
   font-size: 12px;
-  color: #a9b4d0;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
 
+.stat-box strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* ==== Avatar ==== */
 .hero-avatar {
+  display: block;
   width: 70px;
-  margin: auto;
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.35));
 }
 
+/* ==== Category grid ==== */
 .category-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-.category, button {
+.category {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
   padding: 16px;
-  background: #1a2750;
   border-radius: 16px;
-  color: white;
-  text-align: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text);
   text-decoration: none;
-  font-weight: bold;
-  border: none;
+  font-weight: 900;
 }
 
+/* ==== Page titles ==== */
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+}
+
+/* ==== Task buttons ==== */
+.tasks {
+  display: grid;
+  gap: 10px;
+}
+
+.task {
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-size: 15px;
+  text-align: left;
+  font-weight: 800;
+}
+
+.task:active { transform: scale(0.99); }
+
+/* ==== Reset ==== */
 .reset {
-  background: #333;
-}
-
-.shop {
-  background: #121a2b;
+  width: 100%;
+  padding: 14px;
   border-radius: 16px;
-  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 900;
+  font-size: 15px;
 }
 
+/* ==== Shop ==== */
+.shop {
+  background: rgba(18, 26, 43, 0.75);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.shop h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.shop-hint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+}
+
+.shop-item .meta {
+  display: grid;
+  gap: 2px;
+}
+
+.shop-item .name {
+  font-weight: 900;
+}
+
+.shop-item .price,
+.shop-item .note {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.buy-btn {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+  color: #1a1204;
+  font-weight: 900;
+}
+
+.buy-btn:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+.inventory {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.inventory h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.inventory-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text);
+}
+
+/* ==== Quiz ==== */
+.quiz {
+  background: rgba(18, 26, 43, 0.75);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.quiz-card {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+}
+
+.quiz-top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.quiz-question {
+  font-size: 18px;
+  font-weight: 900;
+  margin: 6px 0 12px;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 10px;
+}
+
+.quiz-option {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 900;
+  text-align: left;
+}
+
+.quiz-option.correct {
+  background: rgba(52, 211, 153, 0.35);
+  border-color: rgba(52, 211, 153, 0.9);
+}
+
+.quiz-option.wrong {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: rgba(239, 68, 68, 0.9);
+}
+
+.quiz-status {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ==== Puzzle ==== */
+.puzzle {
+  background: rgba(18, 26, 43, 0.75);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.puzzle-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.puzzle-timer {
+  min-width: 64px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.puzzle-status {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 0 10px;
+}
+
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.puzzle-tile {
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.puzzle-tile.correct {
+  background: rgba(52, 211, 153, 0.35);
+  border-color: rgba(52, 211, 153, 0.9);
+}
+
+.puzzle-tile.wrong {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: rgba(239, 68, 68, 0.9);
+}
+
+/* ==== Back link ==== */
 .back {
   display: block;
-  margin-top: 20px;
+  margin-top: 6px;
   text-align: center;
-  color: #a9b4d0;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+/* ==== Toast ==== */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--text);
+  font-weight: 900;
+  z-index: 9999;
+  max-width: min(520px, calc(100vw - 28px));
+  text-align: center;
 }
