@@ -1,7 +1,7 @@
 // =====================
 // ====== STORAGE ======
 // =====================
-const KEY = "reglife_state_v2";
+const KEY = "reglife_state_v3";
 
 const defaultState = {
   age: 14,
@@ -9,7 +9,7 @@ const defaultState = {
   health: 60,   // 0–100
   brains: 5,    // 1–10
   inventory: [], // item ids
-  unlocks: { ps5: false }, // unlocked-by-quiz
+  unlocks: { ps5: false, jobBonusPaid: false }, // unlocks + one-time rewards
   lastAgeUpdateMs: Date.now(),
 };
 
@@ -18,7 +18,11 @@ function loadState() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return structuredClone(defaultState);
     const parsed = JSON.parse(raw);
-    return { ...structuredClone(defaultState), ...parsed };
+    return {
+      ...structuredClone(defaultState),
+      ...parsed,
+      unlocks: { ...structuredClone(defaultState.unlocks), ...(parsed.unlocks || {}) },
+    };
   } catch {
     return structuredClone(defaultState);
   }
@@ -46,20 +50,20 @@ function toast(msg) {
 // =====================
 // ====== AGE TICK =====
 // =====================
-// Age increases +1 every hour (based on elapsed time, not just open tab time)
+// Age increases +1 every hour based on elapsed time.
 function applyAgeTick() {
   const now = Date.now();
-  const elapsedMs = now - (state.lastAgeUpdateMs || now);
+  const last = state.lastAgeUpdateMs || now;
+  const elapsedMs = now - last;
   const hours = Math.floor(elapsedMs / (60 * 60 * 1000));
 
   if (hours > 0) {
     state.age += hours;
-    state.lastAgeUpdateMs += hours * (60 * 60 * 1000);
+    state.lastAgeUpdateMs = last + hours * (60 * 60 * 1000);
     saveState();
   }
 }
 
-// check every 60s so it updates while page open
 setInterval(() => {
   applyAgeTick();
   renderHeader();
@@ -118,11 +122,11 @@ function completeTask(taskId) {
 
     case "puzzle":
       startPuzzle();
-      return; // reward happens on completion
+      return;
 
     case "frenchQuiz":
       startFrenchQuiz();
-      return; // reward/unlock happens on completion
+      return;
 
     default:
       toast("✅ Task complete!");
@@ -134,7 +138,6 @@ function completeTask(taskId) {
   renderWorkGate();
 }
 
-// wire all buttons with data-task
 function wireTaskButtons() {
   document.querySelectorAll("button[data-task]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -150,14 +153,14 @@ function wireTaskButtons() {
 // =====================
 const SHOP_ITEMS = [
   { id: "jordan1", name: "Jordan 1s", price: 500 },
-  { id: "stussy", name: "Stüssy Hoodie", price: 750 },
-  { id: "ps5", name: "Virtual PS5", price: 2000, requiresUnlock: "ps5" },
+  { id: "stussy", name: "Stüssy Hoodie", price: 250 },     // updated
+  { id: "ps5", name: "PS5", price: 1000, requiresUnlock: "ps5" }, // updated
 ];
 
 function renderShop() {
   const grid = document.getElementById("shopGrid");
   const invList = document.getElementById("inventoryList");
-  if (!grid || !invList) return; // only exists on homepage
+  if (!grid || !invList) return;
 
   grid.innerHTML = "";
 
@@ -216,6 +219,7 @@ function renderShop() {
       toast(`🛍️ Bought ${item.name}!`);
       renderHeader();
       renderShop();
+      renderWorkGate();
     });
 
     row.appendChild(meta);
@@ -223,7 +227,6 @@ function renderShop() {
     grid.appendChild(row);
   });
 
-  // Inventory list
   invList.innerHTML = "";
   if (state.inventory.length === 0) {
     const li = document.createElement("li");
@@ -246,11 +249,41 @@ function renderWorkGate() {
   const msg = document.getElementById("workMsg");
   if (!msg) return;
 
-  if (state.age >= 16 && state.brains >= 8) {
-    msg.textContent = "What job do you want?";
-  } else {
-    msg.textContent = "You’re not ready to work — go back to school.";
+  const ready =
+    state.age >= 16 &&
+    state.brains >= 8 &&
+    state.brains <= 10 &&
+    state.health >= 80;
+
+  if (ready) {
+    msg.textContent =
+      "Congrats, you're ready to get a job, and earn some cash!! Here's a sign-on bonus of £3,000";
+
+    // Pay once: set cash to £3,000 (only if not already paid)
+    if (!state.unlocks.jobBonusPaid) {
+      state.cash = 3000;
+      state.unlocks.jobBonusPaid = true;
+      saveState();
+      renderHeader();
+      toast("💷 Sign-on bonus paid: £3,000!");
+    }
+    return;
   }
+
+  // Otherwise show whichever messages apply
+  const problems = [];
+
+  if (state.brains < 8) {
+    problems.push("you're not smart enough to get a job - go back to school");
+  }
+  if (state.health <= 70) {
+    problems.push("you're not in good enough shape to get a job - go to the gym and eat better");
+  }
+  if (state.age <= 15) {
+    problems.push("you're too young to get a job - come back when you're 16");
+  }
+
+  msg.textContent = problems.join(" / ");
 }
 
 // =====================
@@ -317,9 +350,9 @@ function startFrenchQuiz() {
   quizScore = 0;
 
   statusEl.textContent = "Get 4/5 to unlock the PS5 in the shop.";
-  renderNextQuizQ();
+  renderNext();
 
-  function renderNextQuizQ() {
+  function renderNext() {
     const q = quizQuestions[quizIndex];
     progressEl.textContent = `Q${quizIndex + 1} / 5`;
     scoreEl.textContent = `Score: ${quizScore}`;
@@ -337,7 +370,6 @@ function startFrenchQuiz() {
       btn.addEventListener("click", () => {
         if (!quizActive) return;
 
-        // lock all
         [...optionsEl.querySelectorAll("button")].forEach((b) => (b.disabled = true));
 
         if (opt === q.en) {
@@ -351,12 +383,8 @@ function startFrenchQuiz() {
 
         setTimeout(() => {
           quizIndex += 1;
-
-          if (quizIndex >= 5) {
-            finishQuiz();
-          } else {
-            renderNextQuizQ();
-          }
+          if (quizIndex >= 5) finish();
+          else renderNext();
         }, 650);
       });
 
@@ -364,12 +392,11 @@ function startFrenchQuiz() {
     });
   }
 
-  function finishQuiz() {
+  function finish() {
     quizActive = false;
     scoreEl.textContent = `Score: ${quizScore}`;
 
     if (quizScore >= 4) {
-      // rewards: brains +1, cash +50, unlock PS5
       state.brains = clamp(state.brains + 1, 1, 10);
       state.cash += 50;
 
@@ -383,10 +410,7 @@ function startFrenchQuiz() {
 
       statusEl.textContent = "🏆 Passed! +£50, Brains +1";
 
-      if (wasLocked) {
-        // “banner” effect = toast + auto-scroll to shop if on homepage later
-        toast("🎮 PS5 UNLOCKED in the Shop!");
-      }
+      if (wasLocked) toast("🎮 PS5 UNLOCKED in the Shop!");
     } else {
       statusEl.textContent = "Unlucky 😅 Get 4/5 to unlock the PS5. Try again!";
       saveState();
@@ -395,7 +419,6 @@ function startFrenchQuiz() {
     }
   }
 
-  // scroll to quiz area
   section.scrollIntoView({ behavior: "smooth" });
 }
 
@@ -461,7 +484,6 @@ function startPuzzle() {
           stopTimer();
           puzzleActive = false;
 
-          // reward: cash +20 and brains +1 (counts as “test”)
           state.cash += 20;
           state.brains = clamp(state.brains + 1, 1, 10);
           saveState();
@@ -508,6 +530,7 @@ function wireReset() {
 
   btn.addEventListener("click", () => {
     if (!confirm("Reset everything?")) return;
+    localStorage.removeItem(KEY);
     state = structuredClone(defaultState);
     saveState();
     location.reload();
@@ -522,4 +545,4 @@ renderShop();
 renderWorkGate();
 wireTaskButtons();
 wireReset();
-saveState(); // ensures keys exist
+saveState();
