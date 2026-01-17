@@ -21,6 +21,7 @@
     <section class="tasks">
       <button class="task" type="button" data-task="frenchQuiz">Learn French (Vocab Test)</button>
       <button class="task" type="button" data-task="mathsTest">Maths Test (30s)</button>
+      <button class="task" type="button" data-task="emojiGame">Emoji Charades</button>
       <button class="task" type="button" data-task="puzzle">2-Minute Puzzle</button>
     </section>
 
@@ -36,7 +37,6 @@
 
         <div class="quiz-question" id="quizQuestion"></div>
         <div class="quiz-options" id="quizOptions"></div>
-
         <p class="quiz-status" id="quizStatus"></p>
       </div>
     </section>
@@ -54,8 +54,50 @@
 
         <div class="quiz-question" id="mathQuestion"></div>
         <div class="quiz-options" id="mathOptions"></div>
-
         <p class="quiz-status" id="mathStatus"></p>
+      </div>
+    </section>
+
+    <!-- EMOJI CHARADES UI -->
+    <section class="quiz" id="emojiSection" hidden>
+      <h2>Emoji Charades</h2>
+
+      <!-- Start screen -->
+      <div id="emojiStart" class="emoji-card">
+        <div class="emoji-hero">🤔💭</div>
+        <div class="emoji-title">Decode emoji clues to reveal hidden sayings</div>
+        <button class="emoji-primary" type="button" id="emojiPlayBtn">▶️ Play</button>
+      </div>
+
+      <!-- Game screen -->
+      <div id="emojiGame" class="emoji-card" hidden>
+        <div class="emoji-scorebar">
+          <div class="emoji-pill"><strong id="emojiCorrect">0</strong><span>Correct</span></div>
+          <div class="emoji-pill"><strong id="emojiQuestions">0</strong><span>Questions</span></div>
+          <div class="emoji-pill" id="emojiAccuracyWrap" hidden><strong id="emojiAccuracy">0%</strong><span>Accuracy</span></div>
+          <div class="emoji-pill emoji-combo" id="emojiComboWrap" hidden><strong id="emojiCombo">×2</strong><span>Combo</span></div>
+
+          <button class="emoji-secondary" type="button" id="emojiResetBtn">Reset</button>
+        </div>
+
+        <div class="emoji-prompt">What saying do these emojis represent?</div>
+
+        <div class="emoji-box" id="emojiBox">
+          <div class="emoji-big" id="emojiEmojis">⏰🪰</div>
+          <div class="emoji-hint" id="emojiHint" hidden>💡 hint goes here</div>
+        </div>
+
+        <div class="emoji-inputrow" id="emojiInputRow">
+          <input id="emojiInput" type="text" placeholder="Enter your answer..." />
+          <button class="emoji-primary" type="button" id="emojiSubmitBtn" disabled>Submit</button>
+          <button class="emoji-secondary" type="button" id="emojiHintBtn" hidden>Hint</button>
+        </div>
+
+        <div class="emoji-answer" id="emojiAnswer" hidden>
+          <div class="emoji-answerline" id="emojiCorrectAnswer">"Time flies"</div>
+          <div class="emoji-feedback" id="emojiFeedback">Perfect! +1 point</div>
+          <button class="emoji-primary" type="button" id="emojiNextBtn">Next question</button>
+        </div>
       </div>
     </section>
 
