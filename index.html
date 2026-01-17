@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Welcome to Reglife</title>
+    <title>Reglife Pro</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main class="app">
       <header class="top">
-        <h1>Welcome to Reglife!</h1>
+        <h1>Reglife Pro</h1>
 
         <!-- Avatar (transparent PNG) -->
         <img
@@ -38,6 +38,7 @@
           <button class="task" data-task="Bug Arlo">Bug Arlo</button>
           <button class="task" data-task="10 push-ups">10 push-ups</button>
           <button class="task" data-task="2-Minute Puzzle">2-Minute Puzzle</button>
+          <button class="task" data-task="French Vocab Quiz">French Vocab Quiz 🇫🇷</button>
         </div>
         <p class="selected">
           Selected: <strong id="selectedTask">None</strong>
@@ -46,8 +47,41 @@
 
       <section class="actions">
         <button class="complete" id="completeBtn" disabled>Complete Task</button>
-
         <button class="reset" id="resetBtn" type="button">Reset</button>
+      </section>
+
+      <section class="shop" id="shopSection">
+        <h2>Shop</h2>
+        <p class="shop-hint">
+          Pass the French quiz to unlock the PS5 in the shop 👀
+        </p>
+
+        <div class="shop-grid" id="shopGrid"></div>
+
+        <div class="inventory">
+          <h3>Owned</h3>
+          <ul id="inventoryList" class="inventory-list"></ul>
+        </div>
+      </section>
+
+      <section class="quiz" id="quizSection">
+        <h2>French Vocab Quiz</h2>
+
+        <p class="quiz-hint" id="quizHint">
+          Get <strong>4/5</strong> to unlock the PS5 in the shop.
+        </p>
+
+        <div class="quiz-card" id="quizCard" hidden>
+          <div class="quiz-top">
+            <div class="quiz-progress" id="quizProgress">Q1 / 5</div>
+            <div class="quiz-score" id="quizScore">Score: 0</div>
+          </div>
+
+          <div class="quiz-question" id="quizQuestion">Question</div>
+          <div class="quiz-options" id="quizOptions"></div>
+
+          <p class="quiz-status" id="quizStatus"></p>
+        </div>
       </section>
 
       <section class="puzzle" id="puzzleSection">
