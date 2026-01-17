@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reglife Pro</title>
+  <title>Reglife</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="app">
 
-    <!-- TOP STATS (4 across) -->
+    <!-- TOP STATS -->
     <section class="stats-grid">
       <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
       <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
@@ -17,11 +17,16 @@
       <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
     </section>
 
-    <img src="avatar.png" class="hero-avatar" alt="avatar"/>
+    <!-- BRAND + AVATAR -->
+    <section class="brand-row" style="display:flex;align-items:center;justify-content:center;gap:14px;">
+      <div style="font-weight:900;font-size:20px;line-height:1.1;text-align:right;">
+        Reglife<br/>Pro
+      </div>
+      <img src="avatar.png" class="hero-avatar" alt="avatar"/>
+    </section>
 
     <!-- CATEGORY BUTTONS -->
     <section class="category-grid">
-      <!-- NOTE: explicit ./ fixes Pages routing edge cases -->
       <a href="./workout.html" class="category">🏋️ Work Out</a>
       <a href="./eat.html" class="category">🍔 Eat</a>
       <a href="./school.html" class="category">📚 School</a>
@@ -47,7 +52,6 @@
   </main>
 
   <div id="toast" class="toast" hidden></div>
-
   <script src="app.js"></script>
 </body>
 </html>
