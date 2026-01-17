@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const KEY = "reglife_state_v6";
+  const KEY = "reglife_state_v7";
 
   const defaultState = {
     age: 14,
@@ -63,6 +63,50 @@ document.addEventListener("DOMContentLoaded", () => {
     $("cash") && ($("cash").textContent = `£${state.cash}`);
     $("health") && ($("health").textContent = `${state.health}%`);
     $("brains") && ($("brains").textContent = String(state.brains));
+  }
+
+  // ---------- secret avatar head tap (+1 year) ----------
+  // Adds an invisible hitbox over the top portion of the avatar on the homepage.
+  function wireSecretAvatarTap() {
+    const avatar = document.querySelector("img.hero-avatar");
+    if (!avatar) return;
+
+    // Only on homepage (where shop exists)
+    const onHome = !!$("shopSection");
+    if (!onHome) return;
+
+    // Wrap avatar if not already wrapped
+    if (!avatar.parentElement) return;
+    avatar.parentElement.style.position = "relative";
+
+    const hit = document.createElement("button");
+    hit.type = "button";
+    hit.setAttribute("aria-label", "Secret age cheat");
+    hit.style.position = "absolute";
+    hit.style.width = "72px";
+    hit.style.height = "72px";
+    hit.style.left = "50%";
+    hit.style.top = "0px";
+    hit.style.transform = "translateX(-50%)";
+    hit.style.opacity = "0";
+    hit.style.border = "0";
+    hit.style.background = "transparent";
+    hit.style.cursor = "pointer";
+
+    // Place it over the "head" area: slightly above avatar center
+    hit.style.pointerEvents = "auto";
+
+    hit.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      state.age += 1;
+      saveState();
+      renderHeader();
+      renderWorkGate();
+      toast("🤫 Secret unlocked: Age +1");
+    });
+
+    avatar.parentElement.appendChild(hit);
   }
 
   // ---------- shop ----------
@@ -156,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------- work page (button-style messages) ----------
+  // ---------- work page ----------
   function renderWorkGate() {
     const box = $("workMsg");
     if (!box) return;
@@ -221,7 +265,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       case "healthy":
         state.health = clamp(state.health + 10, 0, 100);
-        toast("🥗 Healthy meal! Health +10%");
+        state.brains = clamp(state.brains + 1, 1, 10); // ✅ requested change
+        toast("🥗 Healthy meal! Health +10%, Brains +1");
         break;
 
       case "maccas":
@@ -266,7 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- french quiz (simple 5Q, 4/5 pass unlocks PS5) ----------
+  // ---------- French quiz (REAL UI, 5Q, pass >=4 unlocks PS5) ----------
   const FRENCH_BANK = [
     { fr: "bonjour", en: "hello" },
     { fr: "merci", en: "thank you" },
@@ -289,27 +334,98 @@ document.addEventListener("DOMContentLoaded", () => {
     return a;
   }
 
+  function pickRandom(arr, n) {
+    return shuffle(arr).slice(0, n);
+  }
+
   function startFrenchQuiz() {
-    // If your current school.html has the full French quiz UI, we can re-hook it later.
-    // For now: quick pass/fail prompt that unlocks PS5 and boosts brains.
-    const pass = confirm("French quiz: did you pass (4/5 or better)?");
-    if (!pass) {
-      toast("Unlucky 😅 Try again.");
+    const section = $("quizSection");
+    const progressEl = $("quizProgress");
+    const scoreEl = $("quizScore");
+    const questionEl = $("quizQuestion");
+    const optionsEl = $("quizOptions");
+    const statusEl = $("quizStatus");
+
+    if (!section || !progressEl || !scoreEl || !questionEl || !optionsEl || !statusEl) {
+      toast("French quiz UI not found on this page.");
       return;
     }
 
-    state.brains = clamp(state.brains + 1, 1, 10);
-    state.cash += 50;
-    const wasLocked = !state.unlocks.ps5;
-    state.unlocks.ps5 = true;
+    section.hidden = false;
 
-    saveState();
-    renderHeader();
-    renderShop();
-    renderWorkGate();
+    const qs = pickRandom(FRENCH_BANK, 5);
+    let idx = 0;
+    let score = 0;
 
-    toast("🏆 Passed! +£50, Brains +1");
-    if (wasLocked) toast("🎮 PS5 UNLOCKED in the Shop!");
+    statusEl.textContent = "Get 4/5 to unlock the PS5 in the shop.";
+
+    renderQ();
+
+    function renderQ() {
+      const q = qs[idx];
+      progressEl.textContent = `Q${idx + 1} / 5`;
+      scoreEl.textContent = `Score: ${score}`;
+      questionEl.textContent = `What does “${q.fr}” mean?`;
+
+      const allEn = FRENCH_BANK.map(x => x.en);
+      const wrongs = shuffle(allEn.filter(x => x !== q.en)).slice(0, 3);
+      const opts = shuffle([q.en, ...wrongs]);
+
+      optionsEl.innerHTML = "";
+      opts.forEach((opt) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "quiz-option";
+        b.textContent = opt;
+
+        b.addEventListener("click", () => {
+          [...optionsEl.querySelectorAll("button")].forEach((x) => (x.disabled = true));
+
+          if (opt === q.en) {
+            score++;
+            b.classList.add("correct");
+            statusEl.textContent = "✅ Correct!";
+          } else {
+            b.classList.add("wrong");
+            statusEl.textContent = "❌ Nope!";
+          }
+
+          setTimeout(() => {
+            idx++;
+            if (idx >= 5) finish();
+            else renderQ();
+          }, 450);
+        });
+
+        optionsEl.appendChild(b);
+      });
+    }
+
+    function finish() {
+      scoreEl.textContent = `Score: ${score}`;
+
+      if (score >= 4) {
+        state.brains = clamp(state.brains + 1, 1, 10);
+        state.cash += 50;
+
+        const wasLocked = !state.unlocks.ps5;
+        state.unlocks.ps5 = true;
+
+        saveState();
+        renderHeader();
+        renderShop();
+        renderWorkGate();
+
+        statusEl.textContent = "🏆 Passed! +£50, Brains +1";
+        toast("🏆 Passed! +£50, Brains +1");
+        if (wasLocked) toast("🎮 PS5 UNLOCKED in the Shop!");
+      } else {
+        statusEl.textContent = "Unlucky 😅 Get 4/5 to unlock the PS5. Try again!";
+        toast("Unlucky 😅 Try again");
+      }
+    }
+
+    section.scrollIntoView({ behavior: "smooth" });
   }
 
   // ---------- maths test (30s, 5Q, needs 5/5 before time runs out) ----------
@@ -424,6 +540,8 @@ document.addEventListener("DOMContentLoaded", () => {
         statusEl.textContent = "Try again for 5/5 (and beat the timer).";
       }
     }
+
+    section.scrollIntoView({ behavior: "smooth" });
   }
 
   // ---------- puzzle (optional; only runs if UI exists) ----------
@@ -521,9 +639,9 @@ document.addEventListener("DOMContentLoaded", () => {
   renderWorkGate();
   wireTaskButtons();
   wireReset();
+  wireSecretAvatarTap(); // ✅ requested cheat button
   saveState();
 
-  // keep age fresh
   setInterval(() => {
     applyAgeTick();
     renderHeader();
