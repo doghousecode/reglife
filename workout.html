@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reglife</title>
+  <title>Work Out • Reglife</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="app">
 
-    <!-- TOP STATS (4 across) -->
     <section class="stats-grid">
       <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
       <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
@@ -17,36 +16,19 @@
       <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
     </section>
 
-    <img src="avatar.png" class="hero-avatar" alt="avatar"/>
+    <h1 class="page-title">🏋️ Work Out</h1>
 
-    <!-- CATEGORY BUTTONS -->
-    <section class="category-grid">
-      <a href="workout.html" class="category">🏋️ Work Out</a>
-      <a href="eat.html" class="category">🍔 Eat</a>
-      <a href="school.html" class="category">📚 School</a>
-      <a href="work.html" class="category">💼 Work</a>
+    <section class="tasks">
+      <button class="task" type="button" data-task="pushups">10 Push-ups</button>
+      <button class="task" type="button" data-task="run">Go for a run</button>
+      <button class="task" type="button" data-task="sleep">Sleep in till noon</button>
     </section>
 
-    <!-- RESET -->
-    <button class="reset" id="resetBtn" type="button">Reset Life</button>
-
-    <!-- SHOP (RESTORED – full functionality) -->
-    <section class="shop" id="shopSection">
-      <h2>Shop</h2>
-      <p class="shop-hint">Pass the French quiz to unlock the PS5 👀</p>
-
-      <div class="shop-grid" id="shopGrid"></div>
-
-      <div class="inventory">
-        <h3>Owned</h3>
-        <ul id="inventoryList" class="inventory-list"></ul>
-      </div>
-    </section>
+    <a href="./index.html" class="back">← Back</a>
 
   </main>
 
   <div id="toast" class="toast" hidden></div>
-
   <script src="app.js"></script>
 </body>
 </html>
