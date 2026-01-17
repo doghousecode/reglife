@@ -24,7 +24,24 @@
       <button class="task" type="button" data-task="puzzle">2-Minute Puzzle</button>
     </section>
 
-    <!-- Maths Test -->
+    <!-- FRENCH QUIZ UI -->
+    <section class="quiz" id="quizSection" hidden>
+      <h2>French Quiz</h2>
+
+      <div class="quiz-card">
+        <div class="quiz-top">
+          <div id="quizProgress">Q1 / 5</div>
+          <div id="quizScore">Score: 0</div>
+        </div>
+
+        <div class="quiz-question" id="quizQuestion"></div>
+        <div class="quiz-options" id="quizOptions"></div>
+
+        <p class="quiz-status" id="quizStatus"></p>
+      </div>
+    </section>
+
+    <!-- MATHS TEST UI -->
     <section class="quiz" id="mathSection" hidden>
       <h2>Maths Test</h2>
 
@@ -37,8 +54,19 @@
 
         <div class="quiz-question" id="mathQuestion"></div>
         <div class="quiz-options" id="mathOptions"></div>
+
         <p class="quiz-status" id="mathStatus"></p>
       </div>
+    </section>
+
+    <!-- PUZZLE UI -->
+    <section class="puzzle" id="puzzleSection" hidden>
+      <h2>2-Minute Puzzle</h2>
+      <div class="puzzle-bar">
+        <div class="puzzle-timer" id="puzzleTimer">2:00</div>
+      </div>
+      <p class="puzzle-status" id="puzzleStatus">Tap the numbers in order: 1 → 20</p>
+      <div class="puzzle-grid" id="puzzleGrid"></div>
     </section>
 
     <a href="./index.html" class="back">← Back</a>
