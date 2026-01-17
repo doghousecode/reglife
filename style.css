@@ -56,14 +56,14 @@ body {
   font-weight: 700;
 }
 
-.tasks, .actions {
+.tasks, .actions, .shop, .quiz, .puzzle {
   background: rgba(18, 26, 43, 0.75);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius);
   padding: 14px;
 }
 
-.tasks h2 {
+.tasks h2, .shop h2, .quiz h2, .puzzle h2 {
   margin: 0 0 10px;
   font-size: 16px;
   color: var(--muted);
@@ -116,6 +116,7 @@ body {
   opacity: 0.5;
   filter: grayscale(0.3);
 }
+
 .reset {
   width: 100%;
   margin-top: 10px;
@@ -127,38 +128,150 @@ body {
   font-weight: 700;
   font-size: 15px;
 }
-/* ===== Puzzle ===== */
 
-.puzzle {
-  background: rgba(18, 26, 43, 0.75);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius);
-  padding: 14px;
-}
-
-.puzzle h2 {
-  margin: 0 0 10px;
-  font-size: 16px;
+/* ===== Shop ===== */
+.shop-hint {
+  margin: 0 0 12px;
+  font-size: 13px;
   color: var(--muted);
-  font-weight: 600;
 }
 
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+}
+
+.shop-item .meta {
+  display: grid;
+  gap: 2px;
+}
+
+.shop-item .name {
+  font-weight: 800;
+}
+
+.shop-item .price {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.shop-item .note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.buy-btn {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+  color: #1a1204;
+  font-weight: 900;
+}
+
+.buy-btn:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+.inventory {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.inventory h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.inventory-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text);
+}
+
+/* ===== Quiz ===== */
+.quiz-hint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.quiz-card {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+}
+
+.quiz-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.quiz-question {
+  font-size: 18px;
+  font-weight: 900;
+  margin: 6px 0 12px;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 10px;
+}
+
+.quiz-option {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 800;
+  text-align: left;
+}
+
+.quiz-option.correct {
+  background: rgba(52, 211, 153, 0.35);
+  border-color: rgba(52, 211, 153, 0.9);
+}
+
+.quiz-option.wrong {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: rgba(239, 68, 68, 0.9);
+}
+
+.quiz-status {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ===== Puzzle ===== */
 .puzzle-bar {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
-}
-
-.puzzle-start {
-  flex: 1;
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  background: linear-gradient(90deg, #f59e0b, #f97316);
-  color: #1a1204;
-  font-weight: 800;
-  font-size: 14px;
 }
 
 .puzzle-timer {
@@ -199,6 +312,7 @@ body {
   background: rgba(239, 68, 68, 0.35);
   border-color: rgba(239, 68, 68, 0.9);
 }
+
 .hero-avatar {
   display: block;
   width: min(55px, 15vw);

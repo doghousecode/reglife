@@ -4,7 +4,7 @@ let streak = Number(localStorage.getItem("streak")) || 0;
 let selectedTask = null;
 
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
-let unlocks = JSON.parse(localStorage.getItem("unlocks") || "{}");
+let unlocks = JSON.parse(localStorage.getItem("unlocks") || "{}"); // { ps5Unlocked: true }
 
 const cashEl = document.getElementById("cash");
 const streakEl = document.getElementById("streak");
@@ -12,8 +12,6 @@ const selectedTaskEl = document.getElementById("selectedTask");
 const completeBtn = document.getElementById("completeBtn");
 const resetBtn = document.getElementById("resetBtn");
 const taskButtons = document.querySelectorAll(".task");
-
-const taskFrenchBtn = document.getElementById("taskFrench");
 
 // Puzzle elements
 const puzzleGrid = document.getElementById("puzzleGrid");
@@ -25,8 +23,6 @@ const shopGrid = document.getElementById("shopGrid");
 const inventoryList = document.getElementById("inventoryList");
 
 // Quiz elements
-const quizSection = document.getElementById("quizSection");
-const quizLockedMsg = document.getElementById("quizLockedMsg");
 const quizCard = document.getElementById("quizCard");
 const quizProgress = document.getElementById("quizProgress");
 const quizScoreEl = document.getElementById("quizScore");
@@ -56,26 +52,14 @@ function render() {
   selectedTaskEl.textContent = selectedTask ? selectedTask : "None";
   completeBtn.disabled = !selectedTask;
 
-  // Unlock French task if PS5 owned
-  const ps5Unlocked = hasUnlock("ps5");
-  if (taskFrenchBtn) {
-    taskFrenchBtn.disabled = !ps5Unlocked;
-    taskFrenchBtn.classList.toggle("locked", !ps5Unlocked);
-    taskFrenchBtn.textContent = ps5Unlocked
-      ? "French Vocab Quiz"
-      : "🔒 French Vocab Quiz (Unlock with PS5)";
-  }
-
   renderShop();
   renderInventory();
-  renderQuizLockState();
 }
 
 taskButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     taskButtons.forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
-
     selectedTask = btn.dataset.task;
     render();
   });
@@ -86,12 +70,12 @@ completeBtn.addEventListener("click", () => {
 
   if (selectedTask === "2-Minute Puzzle") {
     startPuzzle();
-    return; // reward happens when puzzle is completed
+    return;
   }
 
   if (selectedTask === "French Vocab Quiz") {
     startQuiz();
-    return; // reward happens when quiz ends
+    return;
   }
 
   // normal task reward
@@ -107,7 +91,6 @@ resetBtn.addEventListener("click", () => {
   selectedTask = null;
   inventory = [];
   unlocks = {};
-  save();
 
   // reset UI selection
   taskButtons.forEach((b) => b.classList.remove("selected"));
@@ -115,34 +98,40 @@ resetBtn.addEventListener("click", () => {
   // reset puzzle/quiz state
   stopTimer();
   puzzleActive = false;
-  puzzleStatus.textContent = "Select “2-Minute Puzzle” then tap “Complete Task” to start.";
+  puzzleStatus.textContent =
+    "Select “2-Minute Puzzle” then tap “Complete Task” to start.";
   puzzleTimer.textContent = "2:00";
   buildPuzzleGrid();
 
+  quizActive = false;
   quizCard.hidden = true;
   quizStatusEl.textContent = "";
   quizOptionsEl.innerHTML = "";
 
+  save();
   render();
 });
-
 
 // =====================
 // ======= SHOP =========
 // =====================
+
 const SHOP_ITEMS = [
   { id: "jordan1", name: "Jordan 1s", price: 500 },
   { id: "stussy", name: "Stüssy Hoodie", price: 750 },
-  { id: "ps5", name: "Virtual PS5", price: 2000, unlock: "ps5" },
+  { id: "ps5", name: "Virtual PS5", price: 2000, requiresUnlock: "ps5Unlocked" },
 ];
 
 function renderShop() {
   if (!shopGrid) return;
 
   shopGrid.innerHTML = "";
+
   SHOP_ITEMS.forEach((item) => {
     const owned = inventory.includes(item.id);
     const canAfford = cash >= item.price;
+
+    const locked = item.requiresUnlock ? !hasUnlock(item.requiresUnlock) : false;
 
     const row = document.createElement("div");
     row.className = "shop-item";
@@ -161,30 +150,37 @@ function renderShop() {
     meta.appendChild(name);
     meta.appendChild(price);
 
+    if (locked) {
+      const note = document.createElement("div");
+      note.className = "note";
+      note.textContent = "🔒 Pass the French quiz to unlock this";
+      meta.appendChild(note);
+    }
+
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "buy-btn";
-    btn.textContent = owned ? "Owned" : "Buy";
-    btn.disabled = owned || !canAfford;
+
+    if (owned) {
+      btn.textContent = "Owned";
+      btn.disabled = true;
+    } else if (locked) {
+      btn.textContent = "Locked";
+      btn.disabled = true;
+    } else {
+      btn.textContent = "Buy";
+      btn.disabled = !canAfford;
+    }
 
     btn.addEventListener("click", () => {
-      if (owned) return;
+      if (owned || locked) return;
       if (cash < item.price) return;
 
       cash -= item.price;
       inventory.push(item.id);
 
-      if (item.unlock) {
-        unlock(item.unlock);
-        // hype moment
-        alert("🎮 PS5 UNLOCKED! French Quiz is now available in Tasks!");
-      }
-
       save();
       render();
-
-      // mobile-friendly: jump to tasks so he sees the unlock
-      document.querySelector(".tasks").scrollIntoView({ behavior: "smooth" });
     });
 
     row.appendChild(meta);
@@ -217,13 +213,13 @@ function renderInventory() {
   });
 }
 
-
 // =====================
 // ======= PUZZLE =======
 // =====================
+
 let puzzleActive = false;
 let nextNumber = 1;
-let timeLeft = 120;       // seconds
+let timeLeft = 120; // seconds
 let timerId = null;
 
 function shuffle(array) {
@@ -299,7 +295,7 @@ function buildPuzzleGrid() {
           stopTimer();
           puzzleActive = false;
 
-          // ✅ reward
+          // reward on completion
           cash += 25;
           streak += 1;
           save();
@@ -322,10 +318,10 @@ function buildPuzzleGrid() {
 // show a grid immediately (not active until started)
 buildPuzzleGrid();
 
-
 // =====================
 // ======= QUIZ =========
 // =====================
+
 const FRENCH_BANK = [
   { fr: "bonjour", en: "hello" },
   { fr: "merci", en: "thank you" },
@@ -344,14 +340,6 @@ let quizQuestions = [];
 let quizIndex = 0;
 let quizScore = 0;
 
-function renderQuizLockState() {
-  const ps5Unlocked = hasUnlock("ps5");
-  if (!quizLockedMsg || !quizCard) return;
-
-  quizLockedMsg.hidden = ps5Unlocked;
-  quizCard.hidden = !ps5Unlocked || !quizActive;
-}
-
 function pickRandom(arr, n) {
   const copy = [...arr];
   shuffle(copy);
@@ -363,31 +351,25 @@ function buildOptions(correctEn) {
     FRENCH_BANK.map((q) => q.en).filter((x) => x !== correctEn),
     3
   );
-  const options = shuffle([correctEn, ...wrong]);
-  return options;
+  return shuffle([correctEn, ...wrong]);
 }
 
 function startQuiz() {
-  if (!hasUnlock("ps5")) {
-    alert("🔒 Buy the PS5 in the Shop to unlock the quiz!");
-    document.getElementById("shopSection").scrollIntoView({ behavior: "smooth" });
-    return;
-  }
-
   quizActive = true;
   quizQuestions = pickRandom(FRENCH_BANK, 5);
   quizIndex = 0;
   quizScore = 0;
 
-  quizStatusEl.textContent = "Answer 5 questions. Get 4/5 to earn rewards.";
+  quizStatusEl.textContent = "Answer 5 questions. Get 4/5 to unlock the PS5.";
   quizCard.hidden = false;
 
   renderQuizQuestion();
-  quizSection.scrollIntoView({ behavior: "smooth" });
+  document.getElementById("quizSection").scrollIntoView({ behavior: "smooth" });
 }
 
 function renderQuizQuestion() {
   const q = quizQuestions[quizIndex];
+
   quizProgress.textContent = `Q${quizIndex + 1} / 5`;
   quizScoreEl.textContent = `Score: ${quizScore}`;
   quizQuestionEl.textContent = `What does “${q.fr}” mean?`;
@@ -437,13 +419,22 @@ function endQuiz() {
   quizScoreEl.textContent = `Score: ${quizScore}`;
 
   if (quizScore >= 4) {
+    // reward + unlock
     cash += 50;
     streak += 1;
+
+    if (!hasUnlock("ps5Unlocked")) {
+      unlock("ps5Unlocked");
+      alert("🎮 NICE! You unlocked the PS5 in the Shop!");
+      document.getElementById("shopSection").scrollIntoView({ behavior: "smooth" });
+    }
+
     save();
     render();
     quizStatusEl.textContent = "🏆 You passed! +£50 and streak +1 🔥";
   } else {
-    quizStatusEl.textContent = "Unlucky 😅 Get 4/5 to earn rewards. Try again!";
+    quizStatusEl.textContent =
+      "Unlucky 😅 Get 4/5 to unlock the PS5. Try again!";
   }
 }
 
