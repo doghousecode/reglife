@@ -1,20 +1,60 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>School</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>School • Reglife</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main class="app">
-  <h1>📚 School</h1>
+  <main class="app">
 
-  <button onclick="startFrenchQuiz()">French Vocab Test</button>
-  <button onclick="doTask('puzzle')">2-Minute Puzzle</button>
+    <section class="stats-grid">
+      <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
+      <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
+      <div class="stat-box"><span>Health</span><strong id="health">60%</strong></div>
+      <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
+    </section>
 
-  <div id="quiz"></div>
+    <h1 class="page-title">📚 School</h1>
 
-  <a href="index.html" class="back">← Back</a>
-</main>
-<script src="app.js"></script>
+    <section class="tasks">
+      <button class="task" type="button" data-task="frenchQuiz">Learn French (Vocab Test)</button>
+      <button class="task" type="button" data-task="puzzle">2-Minute Puzzle</button>
+    </section>
+
+    <!-- Quiz UI -->
+    <section class="quiz" id="quizSection" hidden>
+      <h2>French Quiz</h2>
+
+      <div class="quiz-card">
+        <div class="quiz-top">
+          <div id="quizProgress">Q1 / 5</div>
+          <div id="quizScore">Score: 0</div>
+        </div>
+
+        <div class="quiz-question" id="quizQuestion">Question</div>
+        <div class="quiz-options" id="quizOptions"></div>
+
+        <p class="quiz-status" id="quizStatus"></p>
+      </div>
+    </section>
+
+    <!-- Puzzle UI -->
+    <section class="puzzle" id="puzzleSection" hidden>
+      <h2>2-Minute Puzzle</h2>
+      <div class="puzzle-bar">
+        <div class="puzzle-timer" id="puzzleTimer">2:00</div>
+      </div>
+      <p class="puzzle-status" id="puzzleStatus">Tap the numbers in order: 1 → 20</p>
+      <div class="puzzle-grid" id="puzzleGrid"></div>
+    </section>
+
+    <a href="index.html" class="back">← Back</a>
+
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
 </body>
 </html>
