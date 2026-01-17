@@ -50,7 +50,6 @@ function toast(msg) {
 // =====================
 // ====== AGE TICK =====
 // =====================
-// Age increases +1 every hour based on elapsed time.
 function applyAgeTick() {
   const now = Date.now();
   const last = state.lastAgeUpdateMs || now;
@@ -128,6 +127,10 @@ function completeTask(taskId) {
       startFrenchQuiz();
       return;
 
+    case "mathsTest":
+      startMathsTest();
+      return;
+
     default:
       toast("✅ Task complete!");
   }
@@ -153,8 +156,8 @@ function wireTaskButtons() {
 // =====================
 const SHOP_ITEMS = [
   { id: "jordan1", name: "Jordan 1s", price: 500 },
-  { id: "stussy", name: "Stüssy Hoodie", price: 250 },     // updated
-  { id: "ps5", name: "PS5", price: 1000, requiresUnlock: "ps5" }, // updated
+  { id: "stussy", name: "Stüssy Hoodie", price: 250 },
+  { id: "ps5", name: "PS5", price: 1000, requiresUnlock: "ps5" },
 ];
 
 function renderShop() {
@@ -259,7 +262,6 @@ function renderWorkGate() {
     msg.textContent =
       "Congrats, you're ready to get a job, and earn some cash!! Here's a sign-on bonus of £3,000";
 
-    // Pay once: set cash to £3,000 (only if not already paid)
     if (!state.unlocks.jobBonusPaid) {
       state.cash = 3000;
       state.unlocks.jobBonusPaid = true;
@@ -270,7 +272,6 @@ function renderWorkGate() {
     return;
   }
 
-  // Otherwise show whichever messages apply
   const problems = [];
 
   if (state.brains < 8) {
@@ -316,12 +317,9 @@ function pickRandom(arr, n) {
   return copy.slice(0, n);
 }
 
-function buildOptions(correctEn) {
-  const wrong = pickRandom(
-    FRENCH_BANK.map((q) => q.en).filter((x) => x !== correctEn),
-    3
-  );
-  return shuffle([correctEn, ...wrong]);
+function buildOptions(correctAnswer, pool) {
+  const wrong = pickRandom(pool.filter((x) => x !== correctAnswer), 3);
+  return shuffle([correctAnswer, ...wrong]);
 }
 
 let quizActive = false;
@@ -359,7 +357,7 @@ function startFrenchQuiz() {
     questionEl.textContent = `What does “${q.fr}” mean?`;
 
     optionsEl.innerHTML = "";
-    const opts = buildOptions(q.en);
+    const opts = buildOptions(q.en, FRENCH_BANK.map((x) => x.en));
 
     opts.forEach((opt) => {
       const btn = document.createElement("button");
@@ -416,6 +414,114 @@ function startFrenchQuiz() {
       saveState();
       renderHeader();
       renderWorkGate();
+    }
+  }
+
+  section.scrollIntoView({ behavior: "smooth" });
+}
+
+// =====================
+// ======= MATHS ========
+// =====================
+let mathActive = false;
+let mathQs = [];
+let mathIndex = 0;
+let mathScore = 0;
+
+function startMathsTest() {
+  const section = document.getElementById("mathSection");
+  const progressEl = document.getElementById("mathProgress");
+  const scoreEl = document.getElementById("mathScore");
+  const questionEl = document.getElementById("mathQuestion");
+  const optionsEl = document.getElementById("mathOptions");
+  const statusEl = document.getElementById("mathStatus");
+
+  if (!section || !progressEl || !scoreEl || !questionEl || !optionsEl || !statusEl) {
+    toast("Maths UI not found on this page.");
+    return;
+  }
+
+  section.hidden = false;
+
+  // build 5 simple multiplication questions
+  mathActive = true;
+  mathIndex = 0;
+  mathScore = 0;
+
+  mathQs = Array.from({ length: 5 }, () => {
+    const a = 2 + Math.floor(Math.random() * 11); // 2–12
+    const b = 2 + Math.floor(Math.random() * 11); // 2–12
+    return { a, b, ans: a * b };
+  });
+
+  statusEl.textContent = "Get all 5 right to earn Brains +1 🧠";
+  renderNext();
+
+  function renderNext() {
+    const q = mathQs[mathIndex];
+    progressEl.textContent = `Q${mathIndex + 1} / 5`;
+    scoreEl.textContent = `Score: ${mathScore}`;
+    questionEl.textContent = `${q.a} × ${q.b} = ?`;
+
+    // options: correct + 3 plausible wrongs
+    const pool = [];
+    while (pool.length < 3) {
+      const delta = [-6, -4, -2, 2, 4, 6][Math.floor(Math.random() * 6)];
+      const wrong = q.ans + delta;
+      if (wrong > 0 && wrong !== q.ans && !pool.includes(wrong)) pool.push(wrong);
+    }
+    const opts = shuffle([q.ans, ...pool]);
+
+    optionsEl.innerHTML = "";
+    opts.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "quiz-option";
+      btn.textContent = String(opt);
+
+      btn.addEventListener("click", () => {
+        if (!mathActive) return;
+
+        [...optionsEl.querySelectorAll("button")].forEach((b) => (b.disabled = true));
+
+        if (opt === q.ans) {
+          mathScore += 1;
+          btn.classList.add("correct");
+          statusEl.textContent = "✅ Correct!";
+        } else {
+          btn.classList.add("wrong");
+          statusEl.textContent = `❌ Nope — it was ${q.ans}`;
+        }
+
+        setTimeout(() => {
+          mathIndex += 1;
+          if (mathIndex >= 5) finish();
+          else renderNext();
+        }, 650);
+      });
+
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function finish() {
+    mathActive = false;
+    scoreEl.textContent = `Score: ${mathScore}`;
+
+    // Requirement: increase brains by 1 each time completed successfully.
+    // We'll define "successfully" as scoring 5/5 (simple & motivating).
+    if (mathScore === 5) {
+      state.brains = clamp(state.brains + 1, 1, 10);
+      saveState();
+      renderHeader();
+      renderWorkGate();
+      toast("🧠 Maths test smashed! Brains +1");
+      statusEl.textContent = "🏆 Perfect score! Brains +1 🧠";
+    } else {
+      saveState();
+      renderHeader();
+      renderWorkGate();
+      statusEl.textContent = "Try again for 5/5 to get Brains +1 🧠";
     }
   }
 
