@@ -1,104 +1,44 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Welcome to Reglife</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <main class="app">
-      <header class="top">
-        <h1>Welcome to Reglife!</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reglife</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="app">
 
-        <!-- Avatar (transparent PNG) -->
-        <img
-          src="avatar.png"
-          class="hero-avatar"
-          alt="Reglife avatar"
-          loading="eager"
-        />
+  <!-- TOP STATS -->
+  <section class="stats-grid">
+    <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
+    <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
+    <div class="stat-box"><span>Health</span><strong id="health">60%</strong></div>
+    <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
+  </section>
 
-        <div class="stats">
-          <div class="stat">
-            <div class="label">Cash</div>
-            <div class="value" id="cash">£0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Streak</div>
-            <div class="value" id="streak">0</div>
-          </div>
-        </div>
-      </header>
+  <img src="avatar.png" class="hero-avatar" alt="avatar"/>
 
-      <section class="tasks">
-        <h2>Tasks</h2>
-        <div class="task-grid" id="taskGrid">
-          <button class="task" data-task="Eat Seaweed">Eat Seaweed</button>
-          <button class="task" data-task="Bug Arlo">Bug Arlo</button>
-          <button class="task" data-task="10 push-ups">10 push-ups</button>
-          <button class="task" data-task="2-Minute Puzzle">2-Minute Puzzle</button>
-          <button class="task" data-task="French Vocab Quiz">French Vocab Quiz 🇫🇷</button>
-        </div>
-        <p class="selected">
-          Selected: <strong id="selectedTask">None</strong>
-        </p>
-      </section>
+  <!-- CATEGORY BUTTONS -->
+  <section class="category-grid">
+    <a href="workout.html" class="category">🏋️ Work Out</a>
+    <a href="eat.html" class="category">🍔 Eat</a>
+    <a href="school.html" class="category">📚 School</a>
+    <a href="work.html" class="category">💼 Work</a>
+  </section>
 
-      <section class="actions">
-        <button class="complete" id="completeBtn" disabled>Complete Task</button>
-        <button class="reset" id="resetBtn" type="button">Reset</button>
-      </section>
+  <!-- RESET -->
+  <button class="reset" id="resetBtn">Reset Life</button>
 
-      <section class="shop" id="shopSection">
-        <h2>Shop</h2>
-        <p class="shop-hint">
-          Pass the French quiz to unlock the PS5 in the shop 👀
-        </p>
+  <!-- SHOP -->
+  <section class="shop">
+    <h2>Shop</h2>
+    <div id="shopGrid"></div>
+    <h3>Owned</h3>
+    <ul id="inventory"></ul>
+  </section>
 
-        <div class="shop-grid" id="shopGrid"></div>
-
-        <div class="inventory">
-          <h3>Owned</h3>
-          <ul id="inventoryList" class="inventory-list"></ul>
-        </div>
-      </section>
-
-      <section class="quiz" id="quizSection">
-        <h2>French Vocab Quiz</h2>
-
-        <p class="quiz-hint" id="quizHint">
-          Get <strong>4/5</strong> to unlock the PS5 in the shop.
-        </p>
-
-        <div class="quiz-card" id="quizCard" hidden>
-          <div class="quiz-top">
-            <div class="quiz-progress" id="quizProgress">Q1 / 5</div>
-            <div class="quiz-score" id="quizScore">Score: 0</div>
-          </div>
-
-          <div class="quiz-question" id="quizQuestion">Question</div>
-          <div class="quiz-options" id="quizOptions"></div>
-
-          <p class="quiz-status" id="quizStatus"></p>
-        </div>
-      </section>
-
-      <section class="puzzle" id="puzzleSection">
-        <h2>2-Minute Puzzle</h2>
-
-        <div class="puzzle-bar">
-          <div class="puzzle-timer" id="puzzleTimer">2:00</div>
-        </div>
-
-        <p class="puzzle-status" id="puzzleStatus">
-          Select “2-Minute Puzzle” then tap “Complete Task” to start.
-        </p>
-
-        <div class="puzzle-grid" id="puzzleGrid" aria-label="Puzzle grid"></div>
-      </section>
-    </main>
-
-    <script src="app.js"></script>
-  </body>
+</main>
+<script src="app.js"></script>
+</body>
 </html>
