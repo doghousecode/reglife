@@ -7,38 +7,46 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main class="app">
+  <main class="app">
 
-  <!-- TOP STATS -->
-  <section class="stats-grid">
-    <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
-    <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
-    <div class="stat-box"><span>Health</span><strong id="health">60%</strong></div>
-    <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
-  </section>
+    <!-- TOP STATS (4 across) -->
+    <section class="stats-grid">
+      <div class="stat-box"><span>Age</span><strong id="age">14</strong></div>
+      <div class="stat-box"><span>Cash</span><strong id="cash">£50</strong></div>
+      <div class="stat-box"><span>Health</span><strong id="health">60%</strong></div>
+      <div class="stat-box"><span>Brains</span><strong id="brains">5</strong></div>
+    </section>
 
-  <img src="avatar.png" class="hero-avatar" alt="avatar"/>
+    <img src="avatar.png" class="hero-avatar" alt="avatar"/>
 
-  <!-- CATEGORY BUTTONS -->
-  <section class="category-grid">
-    <a href="workout.html" class="category">🏋️ Work Out</a>
-    <a href="eat.html" class="category">🍔 Eat</a>
-    <a href="school.html" class="category">📚 School</a>
-    <a href="work.html" class="category">💼 Work</a>
-  </section>
+    <!-- CATEGORY BUTTONS -->
+    <section class="category-grid">
+      <a href="workout.html" class="category">🏋️ Work Out</a>
+      <a href="eat.html" class="category">🍔 Eat</a>
+      <a href="school.html" class="category">📚 School</a>
+      <a href="work.html" class="category">💼 Work</a>
+    </section>
 
-  <!-- RESET -->
-  <button class="reset" id="resetBtn">Reset Life</button>
+    <!-- RESET -->
+    <button class="reset" id="resetBtn" type="button">Reset Life</button>
 
-  <!-- SHOP -->
-  <section class="shop">
-    <h2>Shop</h2>
-    <div id="shopGrid"></div>
-    <h3>Owned</h3>
-    <ul id="inventory"></ul>
-  </section>
+    <!-- SHOP (RESTORED – full functionality) -->
+    <section class="shop" id="shopSection">
+      <h2>Shop</h2>
+      <p class="shop-hint">Pass the French quiz to unlock the PS5 👀</p>
 
-</main>
-<script src="app.js"></script>
+      <div class="shop-grid" id="shopGrid"></div>
+
+      <div class="inventory">
+        <h3>Owned</h3>
+        <ul id="inventoryList" class="inventory-list"></ul>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
